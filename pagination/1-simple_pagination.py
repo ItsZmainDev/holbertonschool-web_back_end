@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"Module for a simple helper function to paginate a list of items"
+"""Module for a simple helper function to paginate a list of items"""
 
 import csv
 import math
