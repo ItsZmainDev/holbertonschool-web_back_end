@@ -2,9 +2,14 @@
 """Module for a simple helper function to paginate a list of items"""
 
 import csv
-import math
 from typing import List, Tuple
-from 0-simple_helper_function import index_range
+
+
+def index_range(page: int, page_size: int) -> Tuple[int, int]:
+    """Return start and end index for pagination"""
+    start = (page - 1) * page_size
+    end = start + page_size
+    return start, end
 
 
 class Server:
