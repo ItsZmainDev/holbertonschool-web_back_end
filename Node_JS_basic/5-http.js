@@ -1,54 +1,36 @@
 const http = require('http');
-const fs = require('fs');
-const url = require('url');
+const countStudents = require('./3-read_file_async');
 
-function countStudents(path) {
-    return fs.readFile(path, 'utf8')
-        .then((data) => {
-            const lines = data.split('\n').filter(line => line.trim() !== '');
-            if (lines.length < 2) {
-                console.log('Number of students: 0');
-                return;
-            }
-            const students = lines.slice(1).map(line => line.split(','));
-            const fields = {};
-            students.forEach(student => {
-                const [firstname, , , field] = student;
-                if (!fields[field]) {
-                    fields[field] = [];
-                }
-                fields[field].push(firstname);
-            });
-            console.log(`Number of students: ${students.length}`);
-            for (const [field, names] of Object.entries(fields)) {
-                console.log(`Number of students in ${field}: ${names.length}. List: ${names.join(', ')}`);
-            }
-        })
-        .catch(() => {
-            throw new Error('Cannot load the database');
-        });
-}
+const DB_PATH = process.argv[2];
 
-const app = http.createServer(async (req, res) => {
-  const reqUrl = url.parse(req.url, true);
-  res.setHeader('Content-Type', 'text/plain');
-  if (reqUrl.pathname === '/') {
-    res.statusCode = 200;
+const app = http.createServer((req, res) => {
+  const { url } = req;
+
+  if (url === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Hello Holberton School!');
-  } else if (reqUrl.pathname === '/students') {
-    res.statusCode = 200;
-    res.write('This is the list of our students\n');
-    const dbPath = process.argv[2];
-    try {
-      const studentsList = await countStudents(dbPath);
-      res.end(studentsList);
-    } catch (err) {
-      res.end(err.message);
-    }
-  } else {
-    res.statusCode = 404;
-    res.end('Not found');
+    return;
   }
+
+  if (url === '/students') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.write('This is the list of our students\n');
+    countStudents(DB_PATH)
+      .then(({ fields }) => {
+        const lines = [];
+        for (const field of Object.keys(fields)) {
+          lines.push(`Number of students in ${field}: ${fields[field].length}. List: ${fields[field].join(', ')}`);
+        }
+        res.end(lines.join('\n'));
+      })
+      .catch(() => {
+        res.end('Cannot load the database');
+      });
+    return;
+  }
+
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Hello Holberton School!');
 });
 
 app.listen(1245);
