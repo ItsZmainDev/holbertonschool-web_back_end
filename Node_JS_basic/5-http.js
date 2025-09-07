@@ -16,8 +16,9 @@ const app = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.write('This is the list of our students\n');
     countStudents(DB_PATH)
-      .then(({ fields }) => {
+      .then(({ total, fields }) => {
         const lines = [];
+        lines.push(`Number of students: ${total}`);
         for (const field of Object.keys(fields)) {
           lines.push(`Number of students in ${field}: ${fields[field].length}. List: ${fields[field].join(', ')}`);
         }
