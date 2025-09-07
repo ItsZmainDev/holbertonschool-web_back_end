@@ -11,8 +11,9 @@ app.get('/', (_req, res) => {
 app.get('/students', (_req, res) => {
   const firstLine = 'This is the list of our students';
   countStudents(DB_PATH)
-    .then(({ fields }) => {
+    .then(({ total, fields }) => {
       const lines = [];
+      lines.push(`Number of students: ${total}`);
       for (const field of Object.keys(fields)) {
         lines.push(`Number of students in ${field}: ${fields[field].length}. List: ${fields[field].join(', ')}`);
       }
